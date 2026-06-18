@@ -1,9 +1,6 @@
 """Basic sanity tests for Nexus backend."""
 
 import os
-import sys
-
-import pytest
 
 
 def test_config_loads():
@@ -32,7 +29,7 @@ def test_database_url_set():
 
 def test_models_import():
     """Verify all SQLAlchemy models import cleanly."""
-    from db.models import (
+    from db.models import (  # noqa: F401
         Badge,
         KnowledgeBase,
         LLMCache,
@@ -47,7 +44,3 @@ def test_models_import():
         Wallet,
         WalletTransaction,
     )
-
-    assert User is not None
-    assert Tenant is not None
-    assert Payment is not None
