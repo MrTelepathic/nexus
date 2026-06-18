@@ -5,6 +5,7 @@ Creates user record on first contact.
 """
 
 from collections.abc import Awaitable, Callable
+from datetime import datetime, timezone
 from typing import Any
 
 import structlog
@@ -68,7 +69,7 @@ class TenantMiddleware(BaseMiddleware):
                     username=user.username,
                     language_code=user.language_code,
                     is_premium=bool(user.is_premium),
-                    last_active_at=user.last_active_at,
+                    last_active_at=datetime.now(timezone.utc),
                 )
                 session.add(db_user)
                 await session.commit()
@@ -79,7 +80,7 @@ class TenantMiddleware(BaseMiddleware):
                 )
             else:
                 # Update last active
-                db_user.last_active_at = user.last_active_at
+                db_user.last_active_at = datetime.now(timezone.utc)
                 if user.first_name:
                     db_user.first_name = user.first_name
                 if user.username:
