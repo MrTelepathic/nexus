@@ -199,10 +199,11 @@ jobs:
           python -c "
           import asyncio, os
           os.chdir('backend')
+          from sqlalchemy.ext.asyncio import create_async_engine
           from sqlalchemy import text
-          from db.engine import engine
 
           async def check():
+              engine = create_async_engine(os.environ['DATABASE_URL'])
               async with engine.connect() as conn:
                   tables = await conn.execute(text(
                       \"SELECT tablename FROM pg_tables WHERE schemaname = 'public' ORDER BY tablename\"
@@ -212,13 +213,13 @@ jobs:
                   for t in table_list:
                       print(f'  - {t}')
 
-                  # Verify key tables exist
                   expected = ['tenants', 'users', 'products', 'orders', 'payments', 'conversations', 'messages']
                   missing = [t for t in expected if t not in table_list]
                   if missing:
                       print(f'MISSING TABLES: {missing}')
                       exit(1)
                   print('All core tables verified')
+              await engine.dispose()
 
           asyncio.run(check())
           "
