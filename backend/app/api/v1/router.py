@@ -1,8 +1,7 @@
 """API v1 router — aggregates all endpoint routers."""
 
+from app.api.v1 import auth, dashboard, gamification, orders, payments, products, referrals, wallet
 from fastapi import APIRouter
-
-from app.api.v1 import auth, dashboard, products, orders, payments, wallet, gamification, referrals
 
 api_router = APIRouter()
 

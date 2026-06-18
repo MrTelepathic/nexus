@@ -1,18 +1,9 @@
 """Tenant model — root entity for multi-tenancy."""
 
-import uuid
-from datetime import datetime
-from typing import TYPE_CHECKING
-
-from sqlalchemy import Boolean, String
-from sqlalchemy.dialects.postgresql import JSONB, UUID
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-
 from db.models.base import Base, TimestampMixin, UUIDPrimaryKeyMixin
-
-if TYPE_CHECKING:
-    from db.models.user import User
-    from db.models.business import BusinessConnection
+from sqlalchemy import Boolean, String
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.orm import Mapped, mapped_column
 
 
 class Tenant(Base, UUIDPrimaryKeyMixin, TimestampMixin):

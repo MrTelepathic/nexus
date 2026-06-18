@@ -6,13 +6,12 @@ Provides:
 - Auth (initData validation)
 """
 
-from typing import AsyncGenerator
-
-from fastapi import Request, HTTPException, status
-from sqlalchemy.ext.asyncio import AsyncSession
+from collections.abc import AsyncGenerator
 
 from bot.config import get_settings
 from db.engine import get_session
+from fastapi import HTTPException, Request, status
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 async def get_db(request: Request) -> AsyncGenerator[AsyncSession, None]:
@@ -42,10 +41,7 @@ async def require_auth(request: Request) -> dict:
     # 1. Header: X-Init-Data
     # 2. Cookie: init_data
     # 3. Query param: init_data (less secure, dev only)
-    init_data = (
-        request.headers.get("X-Init-Data")
-        or request.cookies.get("init_data")
-    )
+    init_data = request.headers.get("X-Init-Data") or request.cookies.get("init_data")
 
     if not init_data:
         raise HTTPException(
@@ -54,6 +50,7 @@ async def require_auth(request: Request) -> dict:
         )
 
     import json
+
     from bot.utils.crypto import validate_init_data
     from redis.asyncio import Redis
 

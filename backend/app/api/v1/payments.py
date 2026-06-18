@@ -2,10 +2,9 @@
 
 import uuid
 
+from app.dependencies import require_auth
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
-
-from app.dependencies import require_auth
 
 router = APIRouter()
 

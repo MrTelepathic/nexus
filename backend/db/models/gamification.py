@@ -2,11 +2,10 @@
 
 import uuid
 
-from sqlalchemy import BigInteger, Boolean, Integer, SmallInteger, String, Text
+from db.models.base import Base, TenantMixin, TimestampMixin, UUIDPrimaryKeyMixin
+from sqlalchemy import BigInteger, Boolean, Integer, String, Text
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column
-
-from db.models.base import Base, TimestampMixin, UUIDPrimaryKeyMixin, TenantMixin
 
 
 class UserGamification(Base, UUIDPrimaryKeyMixin, TenantMixin, TimestampMixin):
@@ -43,6 +42,4 @@ class UserBadge(Base, TenantMixin):
     __tablename__ = "user_badges"
 
     user_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
-    badge_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True
-    )
+    badge_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)

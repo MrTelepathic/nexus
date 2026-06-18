@@ -11,7 +11,7 @@ Reference: https://core.telegram.org/bots/webapps#validating-data-received-via-t
 import hashlib
 import hmac
 import time
-from urllib.parse import urlparse, parse_qs
+from urllib.parse import parse_qs
 
 import structlog
 from redis.asyncio import Redis
@@ -61,12 +61,8 @@ def _build_data_check_string(
 
 def compute_hmac(bot_token: str, data_check_string: str) -> str:
     """Compute HMAC-SHA-256 secret key is the bot token, upper-cased."""
-    secret_key = hmac.new(
-        b"WebAppData", bot_token.encode(), hashlib.sha256
-    ).digest()
-    return hmac.new(
-        secret_key, data_check_string.encode(), hashlib.sha256
-    ).hexdigest()
+    secret_key = hmac.new(b"WebAppData", bot_token.encode(), hashlib.sha256).digest()
+    return hmac.new(secret_key, data_check_string.encode(), hashlib.sha256).hexdigest()
 
 
 def parse_init_data(init_data: str) -> dict[str, str]:
@@ -131,7 +127,9 @@ async def validate_init_data(
         # --- Check 3: Replay prevention ---
         # Create a unique nonce from auth_date + user data
         user_data = data.get("user", "")
-        nonce_key = f"init_data:nonce:{auth_date}:{hashlib.sha256(user_data.encode()).hexdigest()[:16]}"
+        nonce_key = (
+            f"init_data:nonce:{auth_date}:{hashlib.sha256(user_data.encode()).hexdigest()[:16]}"
+        )
 
         # SETNX: returns True only if key didn't exist (first use)
         is_new = await redis.set(nonce_key, "1", ex=REPLAY_NONCE_TTL, nx=True)

@@ -11,15 +11,14 @@ Features:
 
 import structlog
 from aiogram import Router
+from aiogram.enums import InlineQueryResultType
 from aiogram.types import (
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
     InlineQuery,
     InlineQueryResultArticle,
     InputTextMessageContent,
-    InlineKeyboardMarkup,
-    InlineKeyboardButton,
 )
-from aiogram.enums import InlineQueryResultType
-
 from bot.config import get_settings
 from bot.utils.formatters import escape_html
 
@@ -66,12 +65,18 @@ async def handle_inline_query(inline_query: InlineQuery) -> None:
                     ),
                     parse_mode="HTML",
                 ),
-                reply_markup=InlineKeyboardMarkup(inline_keyboard=[
-                    [InlineKeyboardButton(
-                        text="🛒 Get Started",
-                        web_app={"url": f"{settings.mini_app_url}/products/starter_monthly"},
-                    )],
-                ]),
+                reply_markup=InlineKeyboardMarkup(
+                    inline_keyboard=[
+                        [
+                            InlineKeyboardButton(
+                                text="🛒 Get Started",
+                                web_app={
+                                    "url": f"{settings.mini_app_url}/products/starter_monthly"
+                                },
+                            )
+                        ],
+                    ]
+                ),
             )
         )
     else:
@@ -87,12 +92,16 @@ async def handle_inline_query(inline_query: InlineQuery) -> None:
                     message_text=f"🔍 Searching for <b>{escape_html(query)}</b> in Nexus...",
                     parse_mode="HTML",
                 ),
-                reply_markup=InlineKeyboardMarkup(inline_keyboard=[
-                    [InlineKeyboardButton(
-                        text="🔍 View Results",
-                        web_app={"url": f"{settings.mini_app_url}/search?q={query}"},
-                    )],
-                ]),
+                reply_markup=InlineKeyboardMarkup(
+                    inline_keyboard=[
+                        [
+                            InlineKeyboardButton(
+                                text="🔍 View Results",
+                                web_app={"url": f"{settings.mini_app_url}/search?q={query}"},
+                            )
+                        ],
+                    ]
+                ),
             )
         )
 

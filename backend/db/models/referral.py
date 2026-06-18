@@ -2,11 +2,10 @@
 
 import uuid
 
+from db.models.base import Base, TenantMixin, TimestampMixin, UUIDPrimaryKeyMixin
 from sqlalchemy import BigInteger, Float, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
-
-from db.models.base import Base, TimestampMixin, UUIDPrimaryKeyMixin, TenantMixin
 
 
 class Referral(Base, UUIDPrimaryKeyMixin, TenantMixin, TimestampMixin):
@@ -27,11 +26,7 @@ class ReferralCommission(Base, UUIDPrimaryKeyMixin, TenantMixin):
 
     __tablename__ = "referral_commissions"
 
-    referral_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), nullable=False, index=True
-    )
+    referral_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False, index=True)
     amount: Mapped[float] = mapped_column(Float, nullable=False)
-    source_order_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), nullable=True
-    )
+    source_order_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True)
     status: Mapped[str] = mapped_column(String(20), default="pending")

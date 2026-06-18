@@ -8,17 +8,16 @@ Provides:
 SECURITY: Every session sets the tenant_id for Row-Level Security.
 """
 
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator
 
+from bot.config import get_settings
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_sessionmaker,
     create_async_engine,
 )
-from sqlalchemy import text
-
-from bot.config import get_settings
 
 
 def create_engine():
@@ -28,9 +27,9 @@ def create_engine():
         settings.database_url,
         pool_size=settings.database_pool_size,
         max_overflow=settings.database_max_overflow,
-        pool_pre_ping=True,          # Verify connections before use
-        pool_recycle=3600,           # Recycle connections after 1 hour
-        echo=settings.app_debug,     # Log SQL in debug mode
+        pool_pre_ping=True,  # Verify connections before use
+        pool_recycle=3600,  # Recycle connections after 1 hour
+        echo=settings.app_debug,  # Log SQL in debug mode
     )
 
 
@@ -70,7 +69,9 @@ async def get_session(tenant_id: str | None = None) -> AsyncGenerator[AsyncSessi
             await session.close()
 
 
-async def get_session_dependency(tenant_id: str | None = None) -> AsyncGenerator[AsyncSession, None]:
+async def get_session_dependency(
+    tenant_id: str | None = None,
+) -> AsyncGenerator[AsyncSession, None]:
     """FastAPI dependency for database sessions.
 
     Usage in routes:
@@ -96,9 +97,10 @@ async def init_db() -> None:
         await conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
 
         # Ensure UUID extension
-        await conn.execute(text("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\""))
+        await conn.execute(text('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"'))
 
     from structlog import get_logger
+
     log = get_logger()
     log.info("database_connected", url=settings.database_url.split("@")[-1])
 

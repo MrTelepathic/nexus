@@ -9,7 +9,7 @@ This gives users the illusion of real-time streaming.
 """
 
 import asyncio
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
 
 import structlog
 

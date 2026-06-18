@@ -10,6 +10,7 @@ def process_ai_message(self, tenant_id: str, user_id: int, conversation_id: str,
     Runs asynchronously to avoid blocking the bot's webhook response.
     """
     import asyncio
+
     from ai.orchestrator import process_message
 
     loop = asyncio.new_event_loop()

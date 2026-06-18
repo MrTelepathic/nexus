@@ -15,13 +15,10 @@ Connection lifecycle:
 
 import asyncio
 import json
-from typing import Any
 
 import structlog
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect
-
 from bot.config import get_settings
-from bot.utils.crypto import validate_init_data
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
 log = structlog.get_logger()
 router = APIRouter()
@@ -109,9 +106,7 @@ async def dashboard_websocket(websocket: WebSocket):
 
     try:
         # Wait for auth message (5 second timeout)
-        auth_msg = await asyncio.wait_for(
-            websocket.receive_json(), timeout=5.0
-        )
+        auth_msg = await asyncio.wait_for(websocket.receive_json(), timeout=5.0)
 
         if auth_msg.get("type") != "auth":
             await websocket.send_json({"type": "auth_error", "detail": "Expected auth message"})
@@ -124,7 +119,7 @@ async def dashboard_websocket(websocket: WebSocket):
         # Note: For WebSocket, we use a simpler validation since
         # the nonce check in Redis may have already been consumed
         # by the HTTP auth. We still verify the HMAC.
-        from bot.utils.crypto import parse_init_data, compute_hmac
+        from bot.utils.crypto import compute_hmac, parse_init_data
 
         data = parse_init_data(init_data)
         hash_value = data.get("hash", "")
@@ -141,6 +136,7 @@ async def dashboard_websocket(websocket: WebSocket):
         expected_hash = compute_hmac(settings.bot_token_str, data_check_string)
 
         import hmac
+
         if not hmac.compare_digest(expected_hash, hash_value):
             await websocket.send_json({"type": "auth_error", "detail": "Invalid signature"})
             await websocket.close()
@@ -160,15 +156,17 @@ async def dashboard_websocket(websocket: WebSocket):
 
             if msg_type == "subscribe":
                 # Acknowledge subscription
-                await websocket.send_json({
-                    "type": "subscribed",
-                    "room": msg.get("room", "dashboard"),
-                })
+                await websocket.send_json(
+                    {
+                        "type": "subscribed",
+                        "room": msg.get("room", "dashboard"),
+                    }
+                )
 
             elif msg_type == "ping":
                 await websocket.send_json({"type": "pong"})
 
-    except asyncio.TimeoutError:
+    except TimeoutError:
         await websocket.send_json({"type": "auth_error", "detail": "Auth timeout"})
         await websocket.close()
     except WebSocketDisconnect:

@@ -7,7 +7,8 @@ Limits:
 """
 
 import time
-from typing import Any, Callable, Dict, Awaitable
+from collections.abc import Awaitable, Callable
+from typing import Any
 
 import structlog
 from aiogram import BaseMiddleware
@@ -32,6 +33,7 @@ class RateLimitMiddleware(BaseMiddleware):
         if self._redis is None:
             try:
                 from redis.asyncio import Redis
+
                 self._redis = Redis.from_url(self._redis_url, decode_responses=True)
             except Exception as e:
                 log.warning("redis_connect_failed", error=str(e))
@@ -40,9 +42,9 @@ class RateLimitMiddleware(BaseMiddleware):
 
     async def __call__(
         self,
-        handler: Callable[[TelegramObject, Dict[str, Any]], Awaitable[Any]],
+        handler: Callable[[TelegramObject, dict[str, Any]], Awaitable[Any]],
         event: TelegramObject,
-        data: Dict[str, Any],
+        data: dict[str, Any],
     ) -> Any:
         user = getattr(event, "from_user", None)
         if not user:

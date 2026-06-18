@@ -1,13 +1,10 @@
 """Knowledge base and LLM cache models (pgvector)."""
 
-import uuid
-
-from sqlalchemy import Integer, String, Text
-from sqlalchemy.dialects.postgresql import JSONB, UUID
-from sqlalchemy.orm import Mapped, mapped_column
+from db.models.base import Base, TenantMixin, UUIDPrimaryKeyMixin
 from pgvector.sqlalchemy import Vector
-
-from db.models.base import Base, UUIDPrimaryKeyMixin, TenantMixin
+from sqlalchemy import Integer, String, Text
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.orm import Mapped, mapped_column
 
 
 class KnowledgeBase(Base, UUIDPrimaryKeyMixin, TenantMixin):

@@ -6,10 +6,9 @@ Handles:
 - Mini App launch button
 """
 
-from aiogram import Router, F
-from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
-from aiogram.filters import CommandStart, Command
-
+from aiogram import F, Router
+from aiogram.filters import Command, CommandStart
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 from bot.config import get_settings
 from bot.utils.formatters import escape_html
 
@@ -32,21 +31,28 @@ async def cmd_start(message: Message, **kwargs) -> None:
         referral_code = payload[4:]
         # TODO: Look up referrer by code, create referral record
         from structlog import get_logger
+
         get_logger().info("referral_link_opened", code=referral_code, user_id=user.id)
 
     name = escape_html(user.first_name or "there")
 
     # Build Mini App keyboard
-    keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(
-            text="🚀 Open Nexus Dashboard",
-            web_app={"url": f"{settings.mini_app_url}?start={payload or 'main'}"},
-        )],
-        [InlineKeyboardButton(
-            text="📖 Help",
-            callback_data="help",
-        )],
-    ])
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="🚀 Open Nexus Dashboard",
+                    web_app={"url": f"{settings.mini_app_url}?start={payload or 'main'}"},
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="📖 Help",
+                    callback_data="help",
+                )
+            ],
+        ]
+    )
 
     await message.answer(
         f"Welcome to <b>Nexus</b>, {name}! 🌐\n\n"

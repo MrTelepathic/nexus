@@ -1,13 +1,11 @@
 """Internal wallet and transaction models."""
 
 import uuid
-from decimal import Decimal
 
-from sqlalchemy import BigInteger, Float, Numeric, String, Text
+from db.models.base import Base, TenantMixin, TimestampMixin, UUIDPrimaryKeyMixin
+from sqlalchemy import BigInteger, Float, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
-
-from db.models.base import Base, TimestampMixin, UUIDPrimaryKeyMixin, TenantMixin
 
 
 class Wallet(Base, UUIDPrimaryKeyMixin, TenantMixin, TimestampMixin):
@@ -31,13 +29,9 @@ class WalletTransaction(Base, UUIDPrimaryKeyMixin, TenantMixin):
 
     __tablename__ = "wallet_transactions"
 
-    wallet_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), nullable=False, index=True
-    )
+    wallet_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False, index=True)
     amount: Mapped[float] = mapped_column(Float, nullable=False)
     balance_after: Mapped[float] = mapped_column(Float, nullable=False)
     type: Mapped[str] = mapped_column(String(50), nullable=False)
-    reference_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), nullable=True
-    )
+    reference_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)

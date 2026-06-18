@@ -4,7 +4,8 @@ Logs every incoming update with user ID, chat ID, message type, and latency.
 """
 
 import time
-from typing import Any, Callable, Dict, Awaitable
+from collections.abc import Awaitable, Callable
+from typing import Any
 
 import structlog
 from aiogram import BaseMiddleware
@@ -18,9 +19,9 @@ class LoggingMiddleware(BaseMiddleware):
 
     async def __call__(
         self,
-        handler: Callable[[TelegramObject, Dict[str, Any]], Awaitable[Any]],
+        handler: Callable[[TelegramObject, dict[str, Any]], Awaitable[Any]],
         event: TelegramObject,
-        data: Dict[str, Any],
+        data: dict[str, Any],
     ) -> Any:
         start = time.perf_counter()
         user = getattr(event, "from_user", None)

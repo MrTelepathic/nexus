@@ -7,11 +7,10 @@ Every payment MUST have a unique idempotency_key.
 import uuid
 from datetime import datetime
 
+from db.models.base import Base, TenantMixin, TimestampMixin, UUIDPrimaryKeyMixin
 from sqlalchemy import BigInteger, DateTime, Float, String, Text
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column
-
-from db.models.base import Base, TimestampMixin, UUIDPrimaryKeyMixin, TenantMixin
 
 
 class Payment(Base, UUIDPrimaryKeyMixin, TenantMixin, TimestampMixin):
@@ -36,9 +35,7 @@ class Payment(Base, UUIDPrimaryKeyMixin, TenantMixin, TimestampMixin):
     # Telegram payment ID, TON tx hash, or fiat reference
     external_id: Mapped[str | None] = mapped_column(String(255), nullable=True, index=True)
     # CRITICAL: Unique constraint — prevents double-processing of crypto payments
-    idempotency_key: Mapped[str] = mapped_column(
-        String(255), nullable=False, unique=True
-    )
+    idempotency_key: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
     # Raw webhook payload for debugging and reconciliation
     provider_metadata: Mapped[dict] = mapped_column(JSONB, default=dict)
     refunded_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)

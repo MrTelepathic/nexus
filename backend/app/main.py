@@ -14,11 +14,10 @@ import time
 from contextlib import asynccontextmanager
 
 import structlog
+from bot.config import get_settings
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-
-from bot.config import get_settings
 
 log = structlog.get_logger()
 
@@ -30,11 +29,13 @@ async def lifespan(app: FastAPI):
     log.info("fastapi_starting", env=settings.app_env)
 
     # Initialize database
-    from db.engine import init_db, close_db
+    from db.engine import close_db, init_db
+
     await init_db()
 
     # Initialize Redis
     import redis.asyncio as aioredis
+
     app.state.redis = aioredis.from_url(settings.redis_url, decode_responses=True)
 
     log.info("fastapi_ready")
@@ -108,25 +109,23 @@ def create_fastapi_app(bot=None, dispatcher=None) -> FastAPI:
 
     # --- Import and register API routers ---
     from app.api.v1.router import api_router
+
     app.include_router(api_router, prefix="/api/v1")
 
     # --- WebSocket for real-time dashboard ---
     from app.api.ws.dashboard import router as ws_router
+
     app.include_router(ws_router)
 
     # --- Telegram webhook endpoint (shared-process mode) ---
     if bot and dispatcher:
-        from aiogram.webhook.aiohttp_server import (
-            setup_application,
-            SimpleRequestHandler,
-        )
-        from aiohttp import web
 
         async def webhook_handler(request: Request):
             """Handle incoming Telegram updates via webhook."""
             data = await request.json()
             # Manually dispatch through aiogram
-            from aiogram import Bot, types
+            from aiogram import types
+
             update = types.Update.model_validate(data)
             await dispatcher.feed_update(bot, update)
             return JSONResponse({"ok": True})

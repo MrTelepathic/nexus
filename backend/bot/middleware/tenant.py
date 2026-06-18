@@ -4,16 +4,16 @@ Extracts tenant context from the incoming update.
 Creates user record on first contact.
 """
 
-from typing import Any, Callable, Dict, Awaitable
+from collections.abc import Awaitable, Callable
+from typing import Any
 
 import structlog
 from aiogram import BaseMiddleware
 from aiogram.types import TelegramObject, User
-from sqlalchemy import select
-
 from db.engine import get_session
 from db.models.tenant import Tenant
 from db.models.user import User as UserModel
+from sqlalchemy import select
 
 log = structlog.get_logger()
 
@@ -29,9 +29,9 @@ class TenantMiddleware(BaseMiddleware):
 
     async def __call__(
         self,
-        handler: Callable[[TelegramObject, Dict[str, Any]], Awaitable[Any]],
+        handler: Callable[[TelegramObject, dict[str, Any]], Awaitable[Any]],
         event: TelegramObject,
-        data: Dict[str, Any],
+        data: dict[str, Any],
     ) -> Any:
         user: User | None = getattr(event, "from_user", None)
         if not user:
@@ -40,9 +40,7 @@ class TenantMiddleware(BaseMiddleware):
         # Get or create user and resolve tenant
         async with get_session() as session:
             # Get default tenant (or the user's tenant)
-            result = await session.execute(
-                select(Tenant).where(Tenant.is_active == True).limit(1)
-            )
+            result = await session.execute(select(Tenant).where(Tenant.is_active).limit(1))
             tenant = result.scalar_one_or_none()
 
             if not tenant:

@@ -2,11 +2,10 @@
 
 import uuid
 
+from db.models.base import Base, TenantMixin, TimestampMixin, UUIDPrimaryKeyMixin
 from sqlalchemy import Boolean, Integer, String, Text
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column
-
-from db.models.base import Base, TimestampMixin, UUIDPrimaryKeyMixin, TenantMixin
 
 
 class AutomationWorkflow(Base, UUIDPrimaryKeyMixin, TenantMixin, TimestampMixin):
@@ -27,9 +26,7 @@ class AutomationStep(Base, UUIDPrimaryKeyMixin):
 
     __tablename__ = "automation_steps"
 
-    workflow_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), nullable=False, index=True
-    )
+    workflow_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False, index=True)
     step_order: Mapped[int] = mapped_column(Integer, nullable=False)
     action_type: Mapped[str] = mapped_column(String(100), nullable=False)
     action_config: Mapped[dict] = mapped_column(JSONB, nullable=False)

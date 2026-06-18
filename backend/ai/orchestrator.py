@@ -14,14 +14,15 @@ SECURITY: Agent tools are allowlisted. Only registered tools can be called.
 
 from typing import Annotated, Literal, TypedDict
 
+from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import END, StateGraph
 from langgraph.graph.message import add_messages
-from langgraph.checkpoint.memory import MemorySaver
 
 
 # --- State definition ---
 class AgentState(TypedDict):
     """Shared state across all agents."""
+
     messages: Annotated[list, add_messages]
     tenant_id: str
     user_id: int

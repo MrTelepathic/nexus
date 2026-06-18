@@ -7,8 +7,8 @@ Handles:
 - Analytics report generation
 """
 
-from celery import Celery
 from bot.config import get_settings
+from celery import Celery
 
 settings = get_settings()
 

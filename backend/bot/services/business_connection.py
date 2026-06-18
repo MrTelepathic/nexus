@@ -7,10 +7,9 @@ Manages the lifecycle of business connections:
 """
 
 import structlog
-from sqlalchemy import select
-
 from db.engine import get_session
 from db.models.business import BusinessConnection
+from sqlalchemy import select
 
 log = structlog.get_logger()
 
@@ -21,7 +20,7 @@ async def get_business_connection(connection_id: str) -> BusinessConnection | No
         result = await session.execute(
             select(BusinessConnection).where(
                 BusinessConnection.business_connection_id == connection_id,
-                BusinessConnection.is_enabled == True,
+                BusinessConnection.is_enabled,
             )
         )
         return result.scalar_one_or_none()

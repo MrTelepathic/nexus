@@ -1,9 +1,8 @@
 """Gamification API — XP, badges, streaks, leaderboard."""
 
+from app.dependencies import require_auth
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
-
-from app.dependencies import require_auth
 
 router = APIRouter()
 

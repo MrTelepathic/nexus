@@ -2,11 +2,10 @@
 
 import uuid
 
+from db.models.base import Base, TenantMixin, TimestampMixin, UUIDPrimaryKeyMixin
 from sqlalchemy import BigInteger, Boolean, Float, SmallInteger, String, Text
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column
-
-from db.models.base import Base, TimestampMixin, UUIDPrimaryKeyMixin, TenantMixin
 
 
 class Product(Base, UUIDPrimaryKeyMixin, TenantMixin, TimestampMixin):
@@ -32,9 +31,7 @@ class ProductReview(Base, UUIDPrimaryKeyMixin, TenantMixin, TimestampMixin):
 
     __tablename__ = "product_reviews"
 
-    product_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), nullable=False, index=True
-    )
+    product_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False, index=True)
     user_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
     rating: Mapped[int] = mapped_column(SmallInteger, nullable=False)
     comment: Mapped[str | None] = mapped_column(Text, nullable=True)

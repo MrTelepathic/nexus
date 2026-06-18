@@ -7,11 +7,10 @@ business accounts. State transitions are DB-backed for durability.
 import uuid
 from datetime import datetime
 
+from db.models.base import Base, TenantMixin, TimestampMixin, UUIDPrimaryKeyMixin
 from sqlalchemy import BigInteger, Float, Integer, String, Text
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column
-
-from db.models.base import Base, TimestampMixin, UUIDPrimaryKeyMixin, TenantMixin
 
 
 class Conversation(Base, UUIDPrimaryKeyMixin, TenantMixin, TimestampMixin):
@@ -23,18 +22,14 @@ class Conversation(Base, UUIDPrimaryKeyMixin, TenantMixin, TimestampMixin):
     __tablename__ = "conversations"
 
     user_id: Mapped[int] = mapped_column(BigInteger, nullable=False, index=True)
-    business_conn_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), nullable=True
-    )
+    business_conn_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True)
     chat_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
     state: Mapped[str] = mapped_column(String(30), default="idle")
     assigned_agent: Mapped[str | None] = mapped_column(String(30), nullable=True)
     context_window: Mapped[dict] = mapped_column(JSONB, default=list)
     sentiment_score: Mapped[float | None] = mapped_column(Float, nullable=True)
     message_count: Mapped[int] = mapped_column(Integer, default=0)
-    last_message_at: Mapped[datetime | None] = mapped_column(
-        nullable=True, index=True
-    )
+    last_message_at: Mapped[datetime | None] = mapped_column(nullable=True, index=True)
 
 
 class Message(Base, UUIDPrimaryKeyMixin, TenantMixin):

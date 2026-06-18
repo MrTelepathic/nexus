@@ -17,12 +17,11 @@ from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.fsm.storage.redis import RedisStorage
-
 from bot.config import get_settings
-from bot.handlers import start, business, payments, inline, admin
+from bot.handlers import admin, business, inline, payments, start
 from bot.middleware.logging import LoggingMiddleware
-from bot.middleware.tenant import TenantMiddleware
 from bot.middleware.rate_limit import RateLimitMiddleware
+from bot.middleware.tenant import TenantMiddleware
 
 log = structlog.get_logger()
 
@@ -69,12 +68,14 @@ async def on_startup(bot: Bot) -> None:
 
     from aiogram.types import BotCommand
 
-    await bot.set_my_commands([
-        BotCommand(command="start", description="Start Nexus"),
-        BotCommand(command="help", description="Get help"),
-        BotCommand(command="dashboard", description="Open business dashboard"),
-        BotCommand(command="settings", description="Bot settings"),
-    ])
+    await bot.set_my_commands(
+        [
+            BotCommand(command="start", description="Start Nexus"),
+            BotCommand(command="help", description="Get help"),
+            BotCommand(command="dashboard", description="Open business dashboard"),
+            BotCommand(command="settings", description="Bot settings"),
+        ]
+    )
 
     if settings.bot_webhook_url:
         await bot.set_webhook(
@@ -111,7 +112,8 @@ async def main() -> None:
             structlog.contextvars.merge_contextvars,
             structlog.processors.add_log_level,
             structlog.processors.TimeStamper(fmt="iso"),
-            structlog.dev.ConsoleRenderer() if getenv("APP_ENV") != "production"
+            structlog.dev.ConsoleRenderer()
+            if getenv("APP_ENV") != "production"
             else structlog.processors.JSONRenderer(),
         ],
     )
@@ -130,7 +132,9 @@ async def main() -> None:
 
             app = create_fastapi_app(bot, dp)
             config = uvicorn.Config(
-                app, host="0.0.0.0", port=8000,
+                app,
+                host="0.0.0.0",
+                port=8000,
                 log_level=getenv("APP_LOG_LEVEL", "info").lower(),
             )
             server = uvicorn.Server(config)

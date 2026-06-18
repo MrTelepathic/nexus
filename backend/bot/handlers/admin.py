@@ -8,9 +8,8 @@ Handles business owner commands:
 """
 
 import structlog
-from aiogram import Router, F
-from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
-
+from aiogram import F, Router
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 from bot.config import get_settings
 from bot.utils.formatters import escape_html
 
@@ -32,12 +31,16 @@ async def cmd_dashboard(message: Message) -> None:
     """Launch the business dashboard Mini App."""
     settings = get_settings()
 
-    keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(
-            text="📊 Open Dashboard",
-            web_app={"url": settings.mini_app_url},
-        )],
-    ])
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="📊 Open Dashboard",
+                    web_app={"url": settings.mini_app_url},
+                )
+            ],
+        ]
+    )
 
     await message.answer(
         "<b>Nexus Dashboard</b>\n\n"
@@ -112,24 +115,34 @@ async def cmd_config(message: Message) -> None:
     """Show bot configuration options."""
     settings = get_settings()
 
-    keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(
-            text="🤖 AI Settings",
-            callback_data="config:ai",
-        )],
-        [InlineKeyboardButton(
-            text="💰 Payment Settings",
-            callback_data="config:payments",
-        )],
-        [InlineKeyboardButton(
-            text="🎨 Appearance",
-            callback_data="config:appearance",
-        )],
-        [InlineKeyboardButton(
-            text="🔐 Security",
-            callback_data="config:security",
-        )],
-    ])
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="🤖 AI Settings",
+                    callback_data="config:ai",
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="💰 Payment Settings",
+                    callback_data="config:payments",
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="🎨 Appearance",
+                    callback_data="config:appearance",
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="🔐 Security",
+                    callback_data="config:security",
+                )
+            ],
+        ]
+    )
 
     await message.answer(
         "<b>⚙️ Bot Configuration</b>\n\n"

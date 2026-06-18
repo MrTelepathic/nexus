@@ -3,12 +3,11 @@
 Validates initData on every request and sets request state.
 """
 
+from bot.config import get_settings
+from bot.utils.crypto import validate_init_data
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import JSONResponse
-
-from bot.config import get_settings
-from bot.utils.crypto import validate_init_data
 
 
 class AuthMiddleware(BaseHTTPMiddleware):
@@ -29,10 +28,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
             return await call_next(request)
 
         # Extract initData from header or cookie
-        init_data = (
-            request.headers.get("X-Init-Data")
-            or request.cookies.get("init_data")
-        )
+        init_data = request.headers.get("X-Init-Data") or request.cookies.get("init_data")
 
         if not init_data:
             return JSONResponse(
@@ -41,6 +37,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
             )
 
         import json
+
         redis = request.app.state.redis
         result = await validate_init_data(
             bot_token=settings.bot_token_str,

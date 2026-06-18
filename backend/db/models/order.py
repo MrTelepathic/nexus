@@ -1,12 +1,9 @@
 """Order model — idempotent order processing."""
 
-import uuid
-
+from db.models.base import Base, TenantMixin, TimestampMixin, UUIDPrimaryKeyMixin
 from sqlalchemy import BigInteger, Float, String
-from sqlalchemy.dialects.postgresql import JSONB, UUID
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
-
-from db.models.base import Base, TimestampMixin, UUIDPrimaryKeyMixin, TenantMixin
 
 
 class Order(Base, UUIDPrimaryKeyMixin, TenantMixin, TimestampMixin):
@@ -25,8 +22,6 @@ class Order(Base, UUIDPrimaryKeyMixin, TenantMixin, TimestampMixin):
     payment_method: Mapped[str | None] = mapped_column(String(20), nullable=True)
     payment_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
     # CRITICAL: Unique constraint prevents duplicate payments
-    idempotency_key: Mapped[str] = mapped_column(
-        String(255), nullable=False, unique=True
-    )
+    idempotency_key: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
     items: Mapped[dict] = mapped_column(JSONB, default=list)
     metadata_: Mapped[dict] = mapped_column("metadata", JSONB, default=dict)

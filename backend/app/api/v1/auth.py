@@ -2,12 +2,11 @@
 
 import json
 
-from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
-
+from app.dependencies import get_redis
 from bot.config import get_settings
 from bot.utils.crypto import validate_init_data
-from app.dependencies import get_redis
+from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel
 
 router = APIRouter()
 

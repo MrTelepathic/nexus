@@ -11,22 +11,20 @@ Each payment is processed exactly once via ON CONFLICT.
 """
 
 import uuid
-from decimal import Decimal
 
 import structlog
-from aiogram import Router, F
+from aiogram import F, Router
 from aiogram.types import (
+    ContentType,
+    LabeledPrice,
     Message,
     PreCheckoutQuery,
-    LabeledPrice,
-    ContentType,
     SuccessfulPayment,
 )
-from sqlalchemy import select, text
-
 from bot.config import get_settings
-from bot.utils.formatters import format_amount, escape_html
+from bot.utils.formatters import escape_html, format_amount
 from db.engine import get_session
+from sqlalchemy import select, text
 
 log = structlog.get_logger()
 router = Router(name="payments")
@@ -68,15 +66,19 @@ PRODUCT_CATALOG = {
 @router.message(F.text == "/buy")
 async def cmd_buy(message: Message, **kwargs) -> None:
     """Show available products for purchase."""
-    from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+    from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
-    keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(
-            text=f"⭐ {item['title']} — {item['price']} Stars",
-            callback_data=f"buy:{product_id}",
-        )]
-        for product_id, item in PRODUCT_CATALOG.items()
-    ])
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text=f"⭐ {item['title']} — {item['price']} Stars",
+                    callback_data=f"buy:{product_id}",
+                )
+            ]
+            for product_id, item in PRODUCT_CATALOG.items()
+        ]
+    )
 
     await message.answer(
         "<b>Nexus Store</b> 🛒\n\nChoose a product or subscription:",
@@ -142,20 +144,18 @@ async def handle_pre_checkout(pre_checkout_query: PreCheckoutQuery) -> None:
 
     # Check idempotency — reject if already processed
     if idempotency_key:
-        tenant_id = kwargs.get("tenant_id")
-        if tenant_id:
-            async with get_session(str(tenant_id)) as session:
-                result = await session.execute(
-                    select(text("1")).select_from(text("payments")).where(
-                        text(f"idempotency_key = '{idempotency_key}'")
-                    )
+        async with get_session() as session:
+            result = await session.execute(
+                select(text("1"))
+                .select_from(text("payments"))
+                .where(text(f"idempotency_key = '{idempotency_key}'"))
+            )
+            if result.scalar_one_or_none():
+                log.warning("payment_already_processed", key=idempotency_key)
+                await pre_checkout_query.answer(
+                    ok=False, error_message="Payment already processed."
                 )
-                if result.scalar_one_or_none():
-                    log.warning("payment_already_processed", key=idempotency_key)
-                    await pre_checkout_query.answer(
-                        ok=False, error_message="Payment already processed."
-                    )
-                    return
+                return
 
     log.info(
         "pre_checkout_approved",

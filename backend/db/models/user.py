@@ -1,17 +1,11 @@
 """User model — Telegram users within a tenant."""
 
-import uuid
 from datetime import datetime
-from typing import TYPE_CHECKING
 
+from db.models.base import Base, TenantMixin, TimestampMixin
 from sqlalchemy import BigInteger, Boolean, DateTime, Float, String
-from sqlalchemy.dialects.postgresql import ARRAY, JSONB, UUID
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-
-from db.models.base import Base, TimestampMixin, TenantMixin
-
-if TYPE_CHECKING:
-    from db.models.tenant import Tenant
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB
+from sqlalchemy.orm import Mapped, mapped_column
 
 
 class User(Base, TenantMixin, TimestampMixin):
@@ -38,8 +32,6 @@ class User(Base, TenantMixin, TimestampMixin):
     last_active_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     # Composite unique: one user record per (tenant, telegram_id)
-    __table_args__ = (
-        {"schema": None},
-    )
+    __table_args__ = ({"schema": None},)
 
     # Relationships — tenant resolved via tenant_id FK

@@ -2,10 +2,9 @@
 
 import uuid
 
+from app.dependencies import require_auth
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
-
-from app.dependencies import require_auth
 
 router = APIRouter()
 
@@ -35,6 +34,7 @@ async def create_order(
     return the existing order instead of creating a duplicate.
     """
     idempotency_key = order.idempotency_key or str(uuid.uuid4())
+    _ = idempotency_key  # TODO: Use when DB insert is implemented
 
     # TODO: INSERT INTO orders ... ON CONFLICT (idempotency_key) DO NOTHING
     # Returning existing order if conflict

@@ -10,13 +10,12 @@ Handles:
 import uuid
 
 import structlog
-from aiogram import Router, F
-from aiogram.types import Message, BusinessConnection
-from sqlalchemy import select, func
-
+from aiogram import F, Router
+from aiogram.types import BusinessConnection, Message
 from db.engine import get_session
-from db.models.conversation import Conversation, Message as MessageModel
-from db.models.tenant import Tenant
+from db.models.conversation import Conversation
+from db.models.conversation import Message as MessageModel
+from sqlalchemy import select
 
 log = structlog.get_logger()
 router = Router(name="business")
@@ -47,11 +46,14 @@ async def get_or_create_conversation(
     """Get existing conversation or create a new one."""
     async with get_session(str(tenant_id)) as session:
         result = await session.execute(
-            select(Conversation).where(
+            select(Conversation)
+            .where(
                 Conversation.tenant_id == tenant_id,
                 Conversation.user_id == user_id,
                 Conversation.chat_id == chat_id,
-            ).order_by(Conversation.created_at.desc()).limit(1)
+            )
+            .order_by(Conversation.created_at.desc())
+            .limit(1)
         )
         conversation = result.scalar_one_or_none()
 

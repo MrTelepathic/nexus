@@ -1,12 +1,9 @@
 """Business Connection model — stores connected Telegram business accounts."""
 
-import uuid
-
+from db.models.base import Base, TenantMixin, TimestampMixin, UUIDPrimaryKeyMixin
 from sqlalchemy import Boolean, String
-from sqlalchemy.dialects.postgresql import JSONB, UUID
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-
-from db.models.base import Base, TimestampMixin, UUIDPrimaryKeyMixin, TenantMixin
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.orm import Mapped, mapped_column
 
 
 class BusinessConnection(Base, UUIDPrimaryKeyMixin, TenantMixin, TimestampMixin):
